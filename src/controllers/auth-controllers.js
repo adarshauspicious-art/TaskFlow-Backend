@@ -9,6 +9,7 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
 
     const userExist = await User.findOne({ email });
+
     if (userExist) {
       return res.status(401).json({
         success: false,
@@ -16,19 +17,19 @@ export const register = async (req, res) => {
       });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({
+    await User.create({
       name,
       email,
-      password: hashed,
+      password, // storing plain text password
     });
+
     return res.status(201).json({
       success: true,
-      message: "User Created successully",
-      user,
+      message: "User Created Successfully",
     });
   } catch (error) {
     console.log(error.message);
+
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
