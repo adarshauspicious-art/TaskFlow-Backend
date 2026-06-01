@@ -42,6 +42,7 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -49,30 +50,34 @@ export const login = async (req, res) => {
       });
     }
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
+    if (password !== user.password) {
       return res.status(400).json({
         success: false,
         message: "Wrong Password",
       });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000,
     });
+
     return res.status(200).json({
       success: true,
-      message: "Log-In Succesfully",
+      message: "Log-In Successfully",
       token,
     });
   } catch (error) {
     console.log(error.message);
+
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
