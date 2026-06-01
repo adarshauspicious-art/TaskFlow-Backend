@@ -17,7 +17,7 @@ export const createToDo = async (req, res) => {
       toDo,
     });
   } catch (error) {
-    console.log(error);
+    console.log(error); 
     return res.status(500).json({
       success: false,
       message: error.message,
