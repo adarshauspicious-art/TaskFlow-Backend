@@ -4,7 +4,6 @@ import cors from "cors";
 import connectDb from "./config/db.js";
 import authRoutes from "./routes/auth-route.js";
 import todoRoutes from "./routes/toDo-route.js";
-
 import cookieParser from "cookie-parser";
 
 
