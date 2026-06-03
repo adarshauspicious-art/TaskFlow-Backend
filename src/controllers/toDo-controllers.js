@@ -1,60 +1,39 @@
 import ToDo from "../models/toDo-model.js";
 
-
-// CREATE TODO
 export const createToDo = async (req, res) => {
   try {
-    const { title } = req.body;
+    // console.log("BODY:", req.body);
+    // console.log("USER:", req.user);
 
-    // Validation
-    if (!title || title.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Title is required",
-      });
-    }
-
-    // Create Todo
     const toDo = await ToDo.create({
-      title,
+      title: req.body.title,
       user: req.user.id,
       completed: false,
     });
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
-      message: "Todo created successfully",
-      todo: toDo,
+      message: "Created Successfully",
+      toDo,
     });
-
   } catch (error) {
-    console.log("CREATE TODO ERROR:", error.message);
-
+    console.log(error); 
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: error.message,
     });
   }
 };
 
-
-
-// GET ALL TODOS
 export const getToDos = async (req, res) => {
   try {
-
-    const todos = await ToDo.find({
-      user: req.user.id,
-    }).sort({ createdAt: -1 });
-
+    const todos = await ToDo.find({ user: req.user.id });
     return res.status(200).json({
       success: true,
       todos,
     });
-
   } catch (error) {
-    console.log("GET TODOS ERROR:", error.message);
-
+    console.log(error.message);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -62,42 +41,24 @@ export const getToDos = async (req, res) => {
   }
 };
 
-
-
-// TOGGLE TODO
 export const toggleToDo = async (req, res) => {
   try {
-
-    const todo = await ToDo.findOne({
-      _id: req.params.id,
-      user: req.user.id,
-    });
-
-    // Check if todo exists
+    const todo = await ToDo.findById(req.params.id);
     if (!todo) {
       return res.status(404).json({
         success: false,
-        message: "Todo not found",
+        message: "ToDo not found",
       });
     }
-
-    // Toggle completed state
     todo.completed = !todo.completed;
-
-    // Save updated todo
     await todo.save();
-
     return res.status(200).json({
       success: true,
-      message: todo.completed
-        ? "Task completed"
-        : "Task marked incomplete",
+      message: "Task Completed  ",
       todo,
     });
-
   } catch (error) {
-    console.log("TOGGLE TODO ERROR:", error.message);
-
+    console.log(error.message);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -105,57 +66,30 @@ export const toggleToDo = async (req, res) => {
   }
 };
 
-
-
-// DELETE TODO
-export const deleteToDo = async (req, res) => {
-  try {
-
-    const deletedTodo = await ToDo.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user.id,
-    });
-
-    // Check if todo exists
-    if (!deletedTodo) {
-      return res.status(404).json({
-        success: false,
-        message: "Todo not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Todo deleted successfully",
-    });
-
-  } catch (error) {
-    console.log("DELETE TODO ERROR:", error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
-};
-
-
-
-// GET CURRENT USER
 export const getCurrentUser = async (req, res) => {
   try {
-
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       user: req.user,
     });
-
   } catch (error) {
-    console.log("GET CURRENT USER ERROR:", error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
+    res.status(500).json({
+      message: error.message,
     });
   }
 };
+
+export const deleteToDo = async (req, res) => {
+  try {
+    await ToDo.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "ToDo Deleted Succesfully" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      success: false,
+      message: "internal Server Error",
+    });
+  }
+};
+              
