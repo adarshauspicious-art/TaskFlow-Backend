@@ -69,7 +69,7 @@ export const toggleToDo = async (req, res) => {
       message: "Internal Server Error",
     });
   }
-};
+};     
 
 export const getCurrentUser = async (req, res) => {
   try {
